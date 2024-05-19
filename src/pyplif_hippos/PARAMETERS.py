@@ -4,8 +4,8 @@
     than these values
 """
 
-HYDROPHOBIC = 4.5
-AROMATIC = 4.0
+HYDROPHOBIC = 5.0
+AROMATIC = 5.0
 HBOND = 3.5
 ELECTROSTATIC = 4.0
 """

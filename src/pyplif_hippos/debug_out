@@ -1,0 +1,5 @@
+HIPPOS-GENREF config file not defined, using genref-config.txt instead
+To change the config file, use it as argument after HIPPOS-GENREF
+Example:
+	 hippos-genref <config file>
+

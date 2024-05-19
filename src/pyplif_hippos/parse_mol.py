@@ -1,12 +1,16 @@
 import glob
 import sys
 import re
+import logging
 from typing import Type, List, Tuple
 
 try:
     from openbabel import openbabel as ob
 except ImportError:
     import openbabel as ob
+
+# Set up logging to a file
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', filename='debug.log', filemode='w')
 
 
 def parse_ligands(ligand_list: List[str]) -> List[Type[ob.OBMol]]:
@@ -27,7 +31,7 @@ def parse_ligands(ligand_list: List[str]) -> List[Type[ob.OBMol]]:
     ligand_mol_list = []
     file_format = ligand_list[0].split(".")[-1]
     if file_format not in "pdb mol2 pdbqt".split():
-        print("Can not read from this format.\nAccepted file formats: pdb, pdbqt, and mol2")
+        logging.error("Cannot read from this format. Accepted file formats: pdb, pdbqt, and mol2")
         sys.exit(1)
 
     convert = ob.OBConversion()
@@ -49,7 +53,11 @@ def parse_ligands(ligand_list: List[str]) -> List[Type[ob.OBMol]]:
             mol_pdb = ob.OBMol()
             read_to_pdb.ReadString(mol_pdb, pdb_string)
             ligand_mol_list.append(mol_pdb)
-    
+
+    # Debug print: ligand atom coordinates
+    for mol in ligand_mol_list:
+        for atom in ob.OBMolAtomIter(mol):
+            logging.debug(f"Ligand Atom {atom.GetId()}: ({atom.GetX()}, {atom.GetY()}, {atom.GetZ()})")
 
     return ligand_mol_list
 
@@ -70,9 +78,9 @@ def parse_protein(protein: str) -> Type[ob.OBMol]:
 
     file_format = protein.split(".")[-1]
     if file_format not in "pdb mol2 pdbqt".split():
-        print("Can not read from this format.\nAccepted file formats: pdb, pdbqt, and mol2")
+        logging.error("Cannot read from this format. Accepted file formats: pdb, pdbqt, and mol2")
         sys.exit(1)
-    
+
     convert = ob.OBConversion()
     convert.SetInAndOutFormats(file_format, "pdb")
     if file_format == "pdb":
@@ -82,7 +90,6 @@ def parse_protein(protein: str) -> Type[ob.OBMol]:
     else:
         read_to_pdb = ob.OBConversion()
         read_to_pdb.SetInFormat("pdb")
-
         protein_mol_origin = ob.OBMol()
         convert.ReadFile(protein_mol_origin, protein)
         if file_format == "mol2":
@@ -90,6 +97,11 @@ def parse_protein(protein: str) -> Type[ob.OBMol]:
         protein_mol_string = convert.WriteString(protein_mol_origin)
         protein_mol = ob.OBMol()
         read_to_pdb.ReadString(protein_mol, protein_mol_string)
+
+    # Debug print: protein atom coordinates
+    for atom in ob.OBMolAtomIter(protein_mol):
+        logging.debug(f"Protein Atom {atom.GetIdx()}: ({atom.GetX()}, {atom.GetY()}, {atom.GetZ()})")
+
     return protein_mol
 
 

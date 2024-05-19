@@ -204,9 +204,10 @@ def assign_atoms(ligand, charge_assignment):
 
     for atom in ob.OBMolAtomIter(ligand):
         # Hydrophobic
-        # Hydrophobic atoms SMARTS pattern retrieved from
-        # http://www.molsoft.com/icm/smiles.html
-        if atom.MatchesSMARTS("[C&!$(C=O)&!$(C#N),S&^3,#17,#15,#35,#53]"):
+        if atom.MatchesSMARTS("[$([#6])&!$([#6X4H0]),$([#16])&!$([#16X3])&!$([#16X4]),F,Cl,Br,I;+0]") or \
+           atom.MatchesSMARTS("[$([CH2]),$([CH3])]") or \
+           atom.MatchesSMARTS("[$([#6&X4])]") or \
+           atom.MatchesSMARTS("[$([c]1[c][c][c][c][c]1)]"):
             hydrophobic.append(atom.GetId())
         # H Donor & Hydrogen bonded to H Donor
         if atom.IsHbondDonor():
